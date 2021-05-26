@@ -69,7 +69,7 @@ def path_user(file_path, user_id, **new_data):
     if new_data.get("password"):
         df.loc[df.index[user_id - 1], "password"] = new_data["password"]
     if new_data.get("age"):
-        df.loc[df.index[user_id - 1], "name"] = new_data["age"]
+        df.loc[df.index[user_id - 1], "age"] = new_data["age"]
     refresh_csv(file_path, df)
     output = df.iloc[user_id - 1].to_dict()
     output.pop('password')

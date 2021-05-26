@@ -40,7 +40,7 @@ def register(user_id):
     users = get_users("./database/users.csv")
     if request.method == 'PATCH':
         new_data = request.json
-        if len(users) > user_id:
+        if int(users[-1].get("id")) >= user_id:
             output = path_user(file_path, user_id, **new_data)
             return output
         else:
