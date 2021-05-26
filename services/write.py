@@ -32,7 +32,7 @@ def create_user(file, all_users, **user):
         return True
 
 
-def correct_data(new_user):
+def correct_data_login(new_user):
     if not isinstance(new_user.get("name", "email"), str) \
             and isinstance(new_user.get("age"), int):
         return jsonify({
@@ -59,21 +59,24 @@ def user_login(user_data, all_users):
         }), 401
 
 
-def path_user(file_path, user_id, **new_data):
+def path_user(file_path, users, user_id, **new_data):
     df = pd.read_csv(file_path)
-    df.loc[df["id"] == user_id - 1]
-    if new_data.get("name"):
-        df.loc[df.index[user_id - 1], "name"] = new_data["name"]
-    if new_data.get("email"):
-        df.loc[df.index[user_id - 1], "email"] = new_data["email"]
-    if new_data.get("password"):
-        df.loc[df.index[user_id - 1], "password"] = new_data["password"]
-    if new_data.get("age"):
-        df.loc[df.index[user_id - 1], "age"] = new_data["age"]
-    refresh_csv(file_path, df)
-    output = df.iloc[user_id - 1].to_dict()
-    output.pop('password')
-    return json.dumps(output, cls=NpEncoder)
+    unique_id = [True for i in users if i["id"] == user_id]
+    if unique_id:
+        if new_data.get("name"):
+            df.loc[df["id"] == int(user_id), "name"] = new_data["name"]
+        if new_data.get("email"):
+            df.loc[df["id"] == int(user_id), "email"] = new_data["email"]
+        if new_data.get("password"):
+            df.loc[df["id"] == int(user_id), "password"] = new_data["password"]
+        if new_data.get("age"):
+            df.loc[df["id"] == int(user_id), "age"] = new_data["age"]
+        refresh_csv(file_path, df)
+        output = df.loc[df["id"] == int(user_id)].to_dict('records')[0]
+        output.pop('password')
+        return json.dumps(output, cls=NpEncoder)
+    else:
+        return jsonify({"error": "Invalid Id as parameter"}), 404
 
 
 def refresh_csv(file_path, data):

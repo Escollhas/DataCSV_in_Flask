@@ -2,7 +2,7 @@ import json
 
 from flask import Flask, request
 
-from services import get_users, create_user, correct_data, user_login, path_user, delete_user
+from services import get_users, create_user, correct_data_login, user_login, path_user, delete_user
 
 app = Flask(__name__)
 
@@ -17,7 +17,7 @@ def signup():
         id = 1
     data = dict(id=id, **data)
     equals_mail = create_user(file_path, users, **data)
-    check_error = correct_data(data)
+    check_error = correct_data_login(data)
     if equals_mail:
         return {}, 422
     elif check_error:
@@ -40,11 +40,8 @@ def register(user_id):
     users = get_users("./database/users.csv")
     if request.method == 'PATCH':
         new_data = request.json
-        if int(users[-1].get("id")) >= user_id:
-            output = path_user(file_path, user_id, **new_data)
-            return output
-        else:
-            return '', 404
+        response = path_user(file_path, users, user_id, **new_data)
+        return response
     if request.method == 'DELETE':
         if delete_user(user_id, file_path):
             return delete_user(user_id, file_path)
